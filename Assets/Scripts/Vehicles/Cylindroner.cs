@@ -16,15 +16,24 @@ public class Cylindroner : MonoBehaviour
     //input holders
     public float horizontalInput, forwardInput;
 
+    //audio
     public AudioSource[] engineSources;
     public int currentSource = 0;
-    public AudioClip[] drivingSounds;
+    public AudioClip[] drivingSounds, reverseSounds;
     public float soundTimerTotal, soundTimer;
-    
+
+    //animation
+    Animator cylinimator;
+
+    //for bounding
+    public float xMin, xMax, zMin, zMax;
+
     void Start()
     {
         carBody = GetComponent<Rigidbody>();
         carCollider = GetComponent<CapsuleCollider>();
+
+        cylinimator = GetComponent<Animator>();
     }
     
     void Update()
@@ -32,6 +41,8 @@ public class Cylindroner : MonoBehaviour
         //take input
         horizontalInput = Input.GetAxis("Horizontal");
         forwardInput = Input.GetAxis("Vertical");
+
+        PlayerBounding();
     }
 
     void FixedUpdate()
@@ -85,6 +96,8 @@ public class Cylindroner : MonoBehaviour
             {
                 carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 5 * Time.deltaTime);
             }
+
+         
         }
         //reset vel
         else
@@ -92,25 +105,55 @@ public class Cylindroner : MonoBehaviour
             carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 3 * Time.deltaTime);
         }
 
-        //check if we moving to play sound
-        if(carBody.velocity.magnitude > 0)
+        //moving forward
+        if (carBody.velocity.z > 0)
         {
+            SetAnimation("forward");
+
             soundTimer -= Time.deltaTime;
             if (soundTimer < 0)
             {
-                PlayDrivingSound();
+                PlayDrivingSound(true);
             }
+        }
+        //moving backward
+        else if (carBody.velocity.z < 0)
+        {
+            SetAnimation("backward");
+
+            soundTimer -= Time.deltaTime;
+            if (soundTimer < 0)
+            {
+                PlayDrivingSound(false);
+            }
+        }
+
+        //check if we moving to play sound
+        if (carBody.velocity.magnitude == 0)
+        {
+            StopAudio();
+            SetAnimation("idle");
         }
         else
         {
-            StopAudio();
+            //moving
         }
     }
 
-    void PlayDrivingSound()
+    //turns off all anims and sets true animState
+    void SetAnimation(string animState)
+    {
+        cylinimator.SetBool("idle", false);
+        cylinimator.SetBool("forward", false);
+        cylinimator.SetBool("backward", false);
+
+        cylinimator.SetBool(animState, true);
+    }
+
+    void PlayDrivingSound(bool forwardOrBackward)
     {
         //increment audio source counter
-        if(currentSource < engineSources.Length - 1)
+        if (currentSource < engineSources.Length - 1)
         {
             currentSource++;
         }
@@ -121,7 +164,17 @@ public class Cylindroner : MonoBehaviour
         //play sound w random pitch
         float randomPitch = Random.Range(0.8f, 1.2f);
         engineSources[currentSource].pitch = randomPitch;
-        engineSources[currentSource].PlayOneShot(drivingSounds[0]);
+
+        //play forward or backward sound
+        if (forwardOrBackward)
+        {
+            engineSources[currentSource].PlayOneShot(drivingSounds[0]);
+        }
+        else
+        {
+            engineSources[currentSource].PlayOneShot(reverseSounds[0]);
+        }
+        
 
         //reset timer
         soundTimer = soundTimerTotal;
@@ -134,4 +187,14 @@ public class Cylindroner : MonoBehaviour
             engineSources[i].Stop();
         }
     }
+
+    void PlayerBounding()    {
+        //above xmax
+        if (transform.position.x > xMax)        {            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);        }
+        //below xmin
+        if (transform.position.x < xMin)        {            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);        }
+        //above zmax
+        if (transform.position.z > zMax)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);        }
+        //below zmin    
+        if (transform.position.z < zMin)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);        }    }
 }
