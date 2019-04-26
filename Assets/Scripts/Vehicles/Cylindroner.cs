@@ -30,10 +30,10 @@ public class Cylindroner : MonoBehaviour
 
     void Start()
     {
-        carBody = GetComponent<Rigidbody>();
-        carCollider = GetComponent<CapsuleCollider>();
+        carBody = GetComponentInParent<Rigidbody>();
+        carCollider = GetComponentInParent<CapsuleCollider>();
 
-        cylinimator = GetComponent<Animator>();
+        cylinimator = GetComponentInParent<Animator>();
     }
     
     void Update()
@@ -50,64 +50,62 @@ public class Cylindroner : MonoBehaviour
         //for checking angle
         Vector3 forward = transform.forward;
         float angleInDegrees = Mathf.Atan2(forward.y, forward.x) * Mathf.Rad2Deg;
-        Debug.Log(angleInDegrees);
+        //Debug.Log(angleInDegrees);
 
         //user is trying to turn
-        if(horizontalInput != 0)
+        //if player is turning, apply torque
+        if (carBody.angularVelocity.magnitude < angularVelocityMax)
         {
-            //if player is turning, apply torque
-            if (carBody.angularVelocity.magnitude < angularVelocityMax)
-            {
-                torque = transform.up * horizontalInput * turningVelocity;
+            torque = transform.up * horizontalInput * turningVelocity;
 
-                carBody.AddTorque(torque);
-            }
-            else
-            {
-                carBody.angularVelocity = Vector3.MoveTowards(carBody.angularVelocity, Vector3.zero, 1 * Time.deltaTime);
-
-            }
+            carBody.AddTorque(torque);
         }
-        //reset angular vel
-        else
+        //reset angular vel if going to fast, turning right but pressing left, turning left but pressing right
+        else if (carBody.angularVelocity.magnitude > velocityMax || (Input.GetKeyDown(KeyCode.A) && carBody.angularVelocity.y > 0) || (Input.GetKeyDown(KeyCode.D) && carBody.angularVelocity.y < 0))
         {
             carBody.angularVelocity = Vector3.MoveTowards(carBody.angularVelocity, Vector3.zero, 3 * Time.deltaTime);
-        }
-       
 
-       
-        //user is trying to move
-        if(forwardInput != 0)
+        }
+
+
+        //reset angular vel when no turning input
+        if (horizontalInput == 0)
         {
-            //apply forward or backward force depending on input
-            if (carBody.velocity.magnitude < velocityMax)
+            carBody.angularVelocity = Vector3.MoveTowards(carBody.angularVelocity, Vector3.zero, 1 * Time.deltaTime);
+        }
+        
+
+        //user is trying to move
+        //apply forward or backward force depending on input
+        if (carBody.velocity.magnitude < velocityMax)
+        {
+            Debug.Log("handling velocity");
+            if (torque.magnitude > 1)
             {
-                if (torque.magnitude > 1)
-                {
-                    carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity * torque.magnitude);
-                }
-                else
-                {
-                    carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity);
-                }
+                carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity * torque.magnitude);
             }
-            //reset vel
             else
             {
-                carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 5 * Time.deltaTime);
+                carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity);
             }
-
-         
         }
-        //reset vel
-        else
+        //reset vel if going to fast, going forward but pressing backward, going backward but pressing forward
+        else if (carBody.velocity.magnitude > velocityMax || (Input.GetKeyDown(KeyCode.S) && carBody.velocity.z > 0) || (Input.GetKeyDown(KeyCode.W) && carBody.velocity.z < 0))
         {
-            carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 3 * Time.deltaTime);
+            //carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 10 * Time.deltaTime);
+            Debug.Log("resesting vel");
+        }
+        
+        //reset vel when no forward/backward input 
+        if(forwardInput == 0)
+        {
+            carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 5 * Time.deltaTime);
         }
 
         //moving forward
         if (carBody.velocity.z > 0)
         {
+            Debug.Log("moving forward");
             SetAnimation("forward");
 
             soundTimer -= Time.deltaTime;
@@ -119,6 +117,7 @@ public class Cylindroner : MonoBehaviour
         //moving backward
         else if (carBody.velocity.z < 0)
         {
+            Debug.Log("moving backward");
             SetAnimation("backward");
 
             soundTimer -= Time.deltaTime;
@@ -188,13 +187,27 @@ public class Cylindroner : MonoBehaviour
         }
     }
 
-    void PlayerBounding()    {
+    void PlayerBounding()
+    {
         //above xmax
-        if (transform.position.x > xMax)        {            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);        }
+        if (transform.position.x > xMax)
+        {
+            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);
+        }
         //below xmin
-        if (transform.position.x < xMin)        {            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);        }
+        if (transform.position.x < xMin)
+        {
+            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);
+        }
         //above zmax
-        if (transform.position.z > zMax)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);        }
+        if (transform.position.z > zMax)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);
+        }
         //below zmin    
-        if (transform.position.z < zMin)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);        }    }
+        if (transform.position.z < zMin)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);
+        }
+    }
 }
