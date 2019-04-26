@@ -38,6 +38,9 @@ public class FirstPersonController : MonoBehaviour
     Vector3 origScale;
     Vector3 origCamPos;
 
+    //for bounding
+    public float xMin, xMax, zMin, zMax;
+
     void Start()
     {
         player = GetComponent<CharacterController>();
@@ -95,6 +98,8 @@ public class FirstPersonController : MonoBehaviour
 
         player.Move(new Vector3(0, -0.5f, 0));
 
+        PlayerBounding();
+
         //for animator
         if (moving)
         {
@@ -111,6 +116,8 @@ public class FirstPersonController : MonoBehaviour
             Application.Quit();
         }
     }
+
+
     
 
     
@@ -141,7 +148,29 @@ public class FirstPersonController : MonoBehaviour
         currentFootsteps[n] = currentFootsteps[0];
         currentFootsteps[0] = playerAudSource.clip;
     }
-    
-   
+
+    void PlayerBounding()
+    {
+        //above xmax
+        if (transform.position.x > xMax)
+        {
+            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);
+        }
+        //below xmin
+        if (transform.position.x < xMin)
+        {
+            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);
+        }
+        //above zmax
+        if (transform.position.z > zMax)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);
+        }
+        //below zmin    
+        if (transform.position.z < zMin)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);
+        }
+    }
 
 }
