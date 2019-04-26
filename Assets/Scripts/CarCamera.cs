@@ -27,7 +27,7 @@ public class CarCamera : MonoBehaviour
             smoothV.y = Mathf.Lerp(smoothV.y, newRotate.y, 1f / smoothing);
             mouseLook += smoothV;
 
-            mouseLook.y = Mathf.Clamp(mouseLook.y, -90f, 90f);
+            mouseLook.y = Mathf.Clamp(mouseLook.y, -60f, 30f);
 
             transform.localRotation = Quaternion.AngleAxis(-mouseLook.y, Vector3.right);
 

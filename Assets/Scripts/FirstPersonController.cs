@@ -149,14 +149,28 @@ public class FirstPersonController : MonoBehaviour
         currentFootsteps[0] = playerAudSource.clip;
     }
 
-    void PlayerBounding()    {
+    void PlayerBounding()
+    {
         //above xmax
-        if (transform.position.x > xMax)        {            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);        }
+        if (transform.position.x > xMax)
+        {
+            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);
+        }
         //below xmin
-        if (transform.position.x < xMin)        {            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);        }
+        if (transform.position.x < xMin)
+        {
+            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);
+        }
         //above zmax
-        if (transform.position.z > zMax)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);        }
+        if (transform.position.z > zMax)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);
+        }
         //below zmin    
-        if (transform.position.z < zMin)        {            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);        }    }
+        if (transform.position.z < zMin)
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);
+        }
+    }
 
 }

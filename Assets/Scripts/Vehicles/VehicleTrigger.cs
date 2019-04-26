@@ -11,10 +11,7 @@ public class VehicleTrigger : MonoBehaviour
     BoxCollider myBoxTrigger;
 
     //ref to actual vehicle object to turn on (could be this same object or a child or something)
-    public GameObject actualVehicle, vehicleCam;
-
-    //just for us to indicate vehicle type in editor and use this to communicate with other scripts if necessary
-    public VehicleType vehicleType;
+    public GameObject actualVehicle, scriptObject, vehicleCam;
 
     //lets us know whether the vehicle is being used
     public bool vehicleActive;
@@ -82,7 +79,7 @@ public class VehicleTrigger : MonoBehaviour
         myBoxTrigger.enabled = false;
 
         //child Derby to the vehicle
-        derbyPlayer.transform.SetParent(vehicleCam.transform);
+        derbyPlayer.transform.SetParent(actualVehicle.transform);
 
         //turn off derby
         derbyPlayer.SetActive(false);
@@ -116,18 +113,7 @@ public class VehicleTrigger : MonoBehaviour
     //each time you make a new vehicle, add an if statement to this linking you enum type to the corresponding movement script(s) you create
     void EnableVehicleScript()
     {
-        if(vehicleType == VehicleType.BASIC)
-        {
-            //actualVehicle.GetComponent<Basic>().enabled = true;
-        }
-        if (vehicleType == VehicleType.FAST)
-        {
-            //actualVehicle.GetComponent<Fast>().enabled = true;
-        }
-        if (vehicleType == VehicleType.CYLINDRONER)
-        {
-            actualVehicle.GetComponent<Cylindroner>().enabled = true;
-        }
+        scriptObject.SetActive(true);  
     }
 
     //called by ExitVehicle ()
@@ -135,17 +121,6 @@ public class VehicleTrigger : MonoBehaviour
     //each time you make a new vehicle, add an if statement to this linking you enum type to the corresponding movement script(s) you create
     void DisableVehicleScript()
     {
-        if (vehicleType == VehicleType.BASIC)
-        {
-            //actualVehicle.GetComponent<Basic>().enabled = false;
-        }
-        if (vehicleType == VehicleType.FAST)
-        {
-            //actualVehicle.GetComponent<Fast>().enabled = false;
-        }
-        if (vehicleType == VehicleType.CYLINDRONER)
-        {
-            actualVehicle.GetComponent<Cylindroner>().enabled = false;
-        }
+        scriptObject.SetActive(false);
     }
 }
