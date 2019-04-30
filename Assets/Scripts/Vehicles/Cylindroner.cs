@@ -54,11 +54,14 @@ public class Cylindroner : MonoBehaviour
 
         //user is trying to turn
         //if player is turning, apply torque
-        if (carBody.angularVelocity.magnitude < angularVelocityMax)
+        if (carBody.angularVelocity.magnitude < angularVelocityMax && horizontalInput != 0)
         {
+            Debug.Log("handling turning, magnitude is: " + carBody.angularVelocity.magnitude);
             torque = transform.up * horizontalInput * turningVelocity;
 
             carBody.AddTorque(torque);
+
+            //carBody.velocity += transform.forward;
         }
         //reset angular vel if going to fast, turning right but pressing left, turning left but pressing right
         else if (carBody.angularVelocity.magnitude > velocityMax || (Input.GetKeyDown(KeyCode.A) && carBody.angularVelocity.y > 0) || (Input.GetKeyDown(KeyCode.D) && carBody.angularVelocity.y < 0))
@@ -77,22 +80,24 @@ public class Cylindroner : MonoBehaviour
 
         //user is trying to move
         //apply forward or backward force depending on input
-        if (carBody.velocity.magnitude < velocityMax)
+        if (carBody.velocity.magnitude < velocityMax && forwardInput != 0)
         {
-            Debug.Log("handling velocity");
+            Debug.Log("handling velocity, magnitude is: " + carBody.velocity.magnitude);
             if (torque.magnitude > 1)
             {
                 carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity * torque.magnitude);
+                //carBody.AddForce(transform.forward * forwardInput * forwardVelocity * torque.magnitude);
             }
             else
             {
                 carBody.AddRelativeForce(0, 0, forwardInput * forwardVelocity);
+                //carBody.AddForce(transform.forward * forwardInput * forwardVelocity );
             }
         }
         //reset vel if going to fast, going forward but pressing backward, going backward but pressing forward
-        else if (carBody.velocity.magnitude > velocityMax || (Input.GetKeyDown(KeyCode.S) && carBody.velocity.z > 0) || (Input.GetKeyDown(KeyCode.W) && carBody.velocity.z < 0))
+        else if (carBody.velocity.magnitude > velocityMax /*|| (Input.GetKeyDown(KeyCode.S) && carBody.velocity.z > 0) || (Input.GetKeyDown(KeyCode.W) && carBody.velocity.z < 0)*/)
         {
-            //carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 10 * Time.deltaTime);
+            carBody.velocity = Vector3.MoveTowards(carBody.velocity, Vector3.zero, 10 * Time.deltaTime);
             Debug.Log("resesting vel");
         }
         
@@ -190,24 +195,24 @@ public class Cylindroner : MonoBehaviour
     void PlayerBounding()
     {
         //above xmax
-        if (transform.position.x > xMax)
+        if (transform.parent.position.x > xMax)
         {
-            transform.position = new Vector3(xMin + 15, transform.position.y, transform.position.z);
+            transform.parent.position = new Vector3(xMin + 15, transform.parent.position.y, transform.parent.position.z);
         }
         //below xmin
-        if (transform.position.x < xMin)
+        if (transform.parent.position.x < xMin)
         {
-            transform.position = new Vector3(xMax - 15, transform.position.y, transform.position.z);
+            transform.parent.position = new Vector3(xMax - 15, transform.parent.position.y, transform.parent.position.z);
         }
         //above zmax
-        if (transform.position.z > zMax)
+        if (transform.parent.position.z > zMax)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, zMin + 15);
+            transform.parent.position = new Vector3(transform.parent.position.x, transform.parent.position.y, zMin + 15);
         }
         //below zmin    
-        if (transform.position.z < zMin)
+        if (transform.parent.position.z < zMin)
         {
-            transform.position = new Vector3(transform.position.x, transform.position.y, zMax - 15);
+            transform.parent.position = new Vector3(transform.parent.position.x, transform.parent.position.y, zMax - 15);
         }
     }
 }
